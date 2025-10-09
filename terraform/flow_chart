@@ -1,0 +1,37 @@
+terraform-project/
+├── modules/                       # Reusable building blocks
+│   ├── vpc/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── eks/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── s3/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+│
+├── environments/                  # Environment-specific configs
+│   ├── dev/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── terraform.tfvars
+│   │   └── backend.tf
+│   ├── staging/
+│   │   ├── main.tf
+│   │   ├── terraform.tfvars
+│   │   └── backend.tf
+│   └── prod/
+│       ├── main.tf
+│       ├── terraform.tfvars
+│       └── backend.tf
+│
+├── global/                        # Shared global resources (optional)
+│   ├── iam/
+│   └── s3-backend/
+│
+├── backend.tf                     # S3 + DynamoDB remote backend config (optional global)
+├── provider.tf                    # Common provider config
+└── versions.tf                    # Terraform + provider version locks
