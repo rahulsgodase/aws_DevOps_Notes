@@ -56,7 +56,7 @@ Answer:
 I’d never hardcode credentials. Instead, I’d store them in AWS Secrets Manager or HashiCorp Vault, then inject them dynamically at runtime.
 In Jenkins, I’d use Credentials Binding Plugin, and in GitHub Actions, I’d use secrets with environment variables. For Kubernetes, I’d create a Secret and mount it as an environment variable.
 
-5. Scenario:
+# 5. Scenario:
 
 You need to deploy a new version of the database schema using a CI/CD pipeline. How would you do it safely?
 
@@ -73,7 +73,7 @@ Deploy migrations to production using blue-green or canary style if possible.
 
 Rollback scripts would also be versioned to handle failures safely.
 
-6. Scenario:
+# 6. Scenario:
 
 A developer accidentally deleted a table in the production database. How would you recover it?
 
@@ -84,14 +84,14 @@ Example:
 mysqldump -h restored-db-endpoint -u user -p db_name deleted_table > deleted_table.sql
 mysql -h prod-db-endpoint -u user -p db_name < deleted_table.sql
 
-7. Scenario:
+# 7. Scenario:
 
 How do you ensure high availability of your database?
 
 Answer:
 For AWS RDS, I’d enable Multi-AZ deployment — this creates a standby replica in another Availability Zone. I’d also use read replicas for scaling reads. Additionally, I’d monitor health with CloudWatch alarms and route traffic through a failover mechanism using RDS endpoint.
 
-8. Scenario:
+# 8. Scenario:
 
 You are asked to migrate an on-prem MySQL database to AWS RDS. What’s your approach?
 
@@ -109,7 +109,7 @@ Test and validate migration.
 
 Cut over once the delta sync completes.
 
-9. Scenario:
+# 9. Scenario:
 
 Your database query latency suddenly increased. How would you diagnose it?
 
@@ -117,7 +117,7 @@ Answer:
 I’d check CloudWatch metrics for CPU, IOPS, and connections. Then, I’d enable Performance Insights to identify slow queries. If queries are suboptimal, I’d analyze EXPLAIN plans and optimize indexes.
 From the DevOps side, I’d ensure that the DB instance isn’t under-provisioned and autoscaling is configured correctly.
 
-10. Scenario:
+# 10. Scenario:
 
 How would you automate database backups and verify their integrity?
 
@@ -125,7 +125,7 @@ Answer:
 I’d schedule automatic backups using AWS RDS built-in snapshot features or cron-based scripts for EC2-hosted DBs.
 To verify integrity, I’d periodically restore the snapshot to a test environment and run checksum validation to ensure data consistency.
 
-11. Scenario:
+# 11. Scenario:
 
 You need to create multiple database users with different privileges. How would you handle it in Terraform?
 
@@ -148,7 +148,7 @@ resource "mysql_grant" "app_grant" {
 
 This ensures version-controlled, auditable user management.
 
-12. Scenario:
+# 12. Scenario:
 
 Your RDS CPU usage is consistently high. What actions will you take?
 
@@ -156,7 +156,7 @@ Answer:
 I’d first identify whether the CPU spike is due to queries or instance size. Enable Performance Insights to identify heavy queries.
 If the workload is legitimate, I’d scale vertically (increase instance size) or horizontally (use read replicas). I’d also review indexes and connection pooling in the application.
 
-13. Scenario:
+# 13. Scenario:
 
 How would you connect an EKS application to an RDS database securely?
 
@@ -164,14 +164,14 @@ Answer:
 I’d place RDS in private subnets and allow inbound traffic only from the EKS node group security group.
 In the app Deployment YAML, I’d inject credentials via Kubernetes Secrets, and access the DB through its internal endpoint — not public.
 
-14. Scenario:
+# 14. Scenario:
 
 How do you handle schema drift in DevOps environments?
 
 Answer:
 I’d use schema migration tools like Flyway, which maintain a changelog of executed scripts. The CI/CD pipeline would check whether new migrations exist and apply them automatically, preventing out-of-sync environments.
 
-15. Scenario:
+# 15. Scenario:
 
 How would you monitor database health in AWS?
 
@@ -180,7 +180,7 @@ I’d use Amazon CloudWatch metrics for CPU, free storage, connections, and late
 I’d also enable Enhanced Monitoring and Performance Insights for deeper analysis.
 Custom dashboards can be created in Grafana connected to CloudWatch data sources.
 
-16. Scenario:
+# 16. Scenario:
 
 If RDS becomes unavailable in one region, how will you ensure business continuity?
 
@@ -188,7 +188,7 @@ Answer:
 I’d configure cross-region read replicas and use Route 53 failover routing.
 In disaster recovery, promote the replica to master and update application connection strings automatically via environment variables or parameter store.
 
-17. Scenario:
+# 17. Scenario:
 
 How can you run database migrations automatically during deployment?
 
@@ -199,7 +199,7 @@ Example in GitHub Actions:
 - name: Run DB migrations
   run: flyway migrate -url=jdbc:mysql://$DB_HOST/$DB_NAME -user=$DB_USER -password=$DB_PASS
 
-18. Scenario:
+# 18. Scenario:
 
 How do you manage different DB configurations for dev, staging, and prod?
 
@@ -212,7 +212,7 @@ terraform apply -var-file="dev.tfvars"
 
 Each environment gets its own DB instance size, credentials, and subnet settings.
 
-19. Scenario:
+# 19. Scenario:
 
 You have to create RDS snapshots every night at 1 AM. How do you achieve this?
 
@@ -220,14 +220,14 @@ Answer:
 I’d use an AWS Lambda function triggered by an EventBridge rule to call create-db-snapshot.
 Alternatively, I could enable RDS automated backups directly via Terraform.
 
-20. Scenario:
+# 20. Scenario:
 
 What’s your strategy for database rollback during failed deployment?
 
 Answer:
 Before migration, I’d take a backup or snapshot. During deployment, I’d use transactional migrations with rollback scripts. If failure occurs, I can restore the backup or use Flyway’s undo scripts.
 
-21. Scenario:
+# 21. Scenario:
 
 How do you ensure your DB password doesn’t expire in a running pod?
 
@@ -235,7 +235,7 @@ Answer:
 I’d rotate credentials using AWS Secrets Manager rotation policies and update the secret mounted in Kubernetes.
 To ensure the pod picks up the new secret, I’d use annotations to trigger redeployments on secret changes.
 
-22. Scenario:
+# 22. Scenario:
 
 How can you test database connection health automatically in CI/CD?
 
@@ -247,7 +247,7 @@ mysqladmin ping -h $DB_HOST -u $DB_USER -p$DB_PASS
 
 If the connection fails, the pipeline should exit with non-zero status to prevent deployment.
 
-23. Scenario:
+# 23. Scenario:
 
 How do you manage database schema changes across microservices?
 
@@ -255,7 +255,7 @@ Answer:
 Each microservice should own its schema. I’d use separate DB users and migration pipelines for each service.
 This isolates impact and ensures schema version control per microservice repository.
 
-24. Scenario:
+# 24. Scenario:
 
 You must ensure encryption of data in RDS. How?
 
@@ -263,7 +263,7 @@ Answer:
 At rest: Enable KMS encryption in RDS using storage_encrypted = true.
 In transit: Enforce SSL connections and configure application DB drivers to use TLS.
 
-25. Scenario:
+# 25. Scenario:
 
 How would you handle connection pooling in Kubernetes?
 
@@ -271,14 +271,14 @@ Answer:
 I’d use a connection pooler like pgBouncer or ProxySQL as a sidecar or separate deployment.
 It maintains persistent DB connections, reducing overhead and improving performance under load.
 
-26. Scenario:
+# 26. Scenario:
 
 Database patching is pending for compliance. How would you plan it?
 
 Answer:
 I’d create a maintenance window and take a snapshot. Apply patches in staging first, validate, then schedule downtime or rolling patch in production during off-peak hours.
 
-27. Scenario:
+# 27. Scenario:
 
 How do you ensure that Terraform doesn’t recreate an RDS instance during minor config changes?
 
@@ -292,21 +292,21 @@ lifecycle {
 
 to prevent unnecessary recreation.
 
-28. Scenario:
+# 28. Scenario:
 
 You need to audit who accessed the database. What’s your approach?
 
 Answer:
 I’d enable RDS CloudTrail integration for connection events and enable general logs and audit plugins in MySQL. Logs would be exported to CloudWatch or S3 for analysis.
 
-29. Scenario:
+# 29. Scenario:
 
 Database migration failed mid-way, leaving schema partially applied. How to handle it?
 
 Answer:
 I’d first restore from backup or manually revert using undo scripts. Then, rerun migrations with a flag like flyway repair to fix version mismatches before retrying.
 
-30. Scenario:
+ # 30. Scenario:
 
 How do you make database access available only within the VPC?
 
