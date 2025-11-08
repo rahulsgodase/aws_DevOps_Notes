@@ -72,7 +72,7 @@ kubectl delete clusterrolebinding developer-read-only-binding
 
 ## 📄 RBAC YAML Files
 
-###``` 1️⃣ namespace.yaml
+### ```1️⃣ namespace.yaml
 yaml
 apiVersion: v1
 kind: Namespace
