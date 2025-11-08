@@ -55,9 +55,9 @@ data:
 
 Apply it:
 kubectl apply -f configmap.yaml
-
+```
 🚀 3. How to Use ConfigMap in Pods
-
+```
 You can use ConfigMaps in three ways:
 
 🧩 Method 1 — As Environment Variables
