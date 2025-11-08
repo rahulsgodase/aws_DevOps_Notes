@@ -47,7 +47,8 @@ db-secret-setup/
 └── scripts/
     └── apply.sh
 ```
-🧩 Prerequisites
+# 🧩 Prerequisites
+
 AWS CLI configured (aws configure)
 
 kubectl, helm, and eksctl installed
@@ -67,18 +68,18 @@ aws secretsmanager create-secret \
 ```
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
-
 helm install external-secrets external-secrets/external-secrets \
   --namespace external-secrets \
   --create-namespace
-  
+  ```
 Check installation:
+```
 kubectl get pods -n external-secrets
 ```
 # 3️⃣ Create IAM Policy for Access
-```
-📄 iam-policy/external-secrets-policy.json
 
+📄 iam-policy/external-secrets-policy.json
+```
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -92,8 +93,9 @@ kubectl get pods -n external-secrets
     }
   ]
 }
-
+```
 Create the policy in AWS:
+```
 aws iam create-policy \
   --policy-name ExternalSecretsAccess \
   --policy-document file://iam-policy/external-secrets-policy.json
@@ -107,13 +109,15 @@ eksctl create iamserviceaccount \
   --attach-policy-arn arn:aws:iam::<account-id>:policy/ExternalSecretsAccess \
   --approve \
   --override-existing-serviceaccounts
-  
+```  
 Check:
+```
 kubectl get sa external-secrets-sa -n external-secrets -o yaml
 ```
 # 5️⃣ Configure SecretStore
-```
+
 📄 k8s/secretproviderclass.yaml
+```
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
@@ -128,13 +132,15 @@ spec:
         jwt:
           serviceAccountRef:
             name: external-secrets-sa
-            
+ ```        
 Apply:
+```
 kubectl apply -f k8s/secretproviderclass.yaml
 ```
 # 6️⃣ Create ExternalSecret
-```
+
 📄 k8s/externalsecret.yaml
+```
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
@@ -165,16 +171,19 @@ spec:
       remoteRef:
         key: mydb/credentials
         property: port
-        
+```     
 Apply:
+```
 kubectl apply -f k8s/externalsecret.yaml
-
+```
 Verify secret synced:
+```
 kubectl get secret db-secret -o yaml
 ```
 # 7️⃣ Create Deployment with Secrets as Env Vars
-```
+
 📄 k8s/deployment.yaml
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -217,13 +226,15 @@ spec:
             secretKeyRef:
               name: db-secret
               key: port
-              
+```              
 Apply:
+```
 kubectl apply -f k8s/deployment.yaml
 ```
 # 8️⃣ Create Service (Optional)
-```
+
 📄 k8s/service.yaml
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -236,25 +247,30 @@ spec:
       targetPort: 8080
       protocol: TCP
   type: ClusterIP
-  
+```  
 Apply:
+```
 kubectl apply -f k8s/service.yaml
 ```
 # 9️⃣ Verify Everything
-```
+
 Check ESO status:
+```
 kubectl get externalsecret
 kubectl describe externalsecret db-credentials
-
+```
 Check synced secret:
+```
 kubectl get secret db-secret -o yaml
-
+```
 Check environment variables in pod:
+```
 kubectl exec -it deploy/java-app -- env | grep DB_
 ```
 # 🔄 10️⃣ Rotate Secrets Automatically
-```
+
 ESO auto-syncs when you update the AWS secret.
+```
 aws secretsmanager update-secret \
   --secret-id mydb/credentials \
   --secret-string '{"username":"admin","password":"NewSecureP@ssword","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
