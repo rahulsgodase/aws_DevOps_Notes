@@ -33,7 +33,7 @@ It removes the need to hardcode secrets in Kubernetes YAML.
 - IAM Role for Service Account (IRSA)
 - Kubernetes Deployment consuming secrets as environment variables
 
-```
+
 # 📁 Folder Structure
 ```
 db-secret-setup/
@@ -54,7 +54,7 @@ kubectl, helm, and eksctl installed
 
 Existing EKS cluster with OIDC provider enabled
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
-```
+
 # 1️⃣ Create Secret in AWS Secrets Manager
 
 ``` 
