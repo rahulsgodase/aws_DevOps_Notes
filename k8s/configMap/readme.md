@@ -117,7 +117,7 @@ spec:
 ✅ Useful when you need only 1 or 2 specific values.
 
 🧠 4. Folder Structure (Best Practice)
-```
+
 k8s/
 ├── base/
 │   ├── configmap.yaml
