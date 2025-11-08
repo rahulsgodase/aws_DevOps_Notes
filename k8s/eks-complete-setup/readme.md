@@ -71,8 +71,6 @@ aws configure
 🏗️ B. Create EKS Cluster
 Create eks-cluster.yaml:
 
-yaml
-Copy code
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
