@@ -39,7 +39,7 @@ It removes the need to hardcode secrets in Kubernetes YAML.
 
 ## 📁 Folder Structure
 
-```bash
+```
 db-secret-setup/
 ├── iam-policy/
 │   └── external-secrets-policy.json
@@ -58,14 +58,17 @@ kubectl, helm, and eksctl installed
 
 Existing EKS cluster with OIDC provider enabled
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
+```
+# 1️⃣ Create Secret in AWS Secrets Manager
 
-1️⃣ Create Secret in AWS Secrets Manager
-```aws secretsmanager create-secret \
+``` 
+aws secretsmanager create-secret \
   --name mydb/credentials \
   --description "Database credentials for app" \
   --secret-string '{"username":"admin","password":"P@ssw0rd123","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
-  
-2️⃣ Install External Secrets Operator
+```
+# 2️⃣ Install External Secrets Operator
+```
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
 
@@ -75,9 +78,9 @@ helm install external-secrets external-secrets/external-secrets \
   
 Check installation:
 kubectl get pods -n external-secrets
-
-3️⃣ Create IAM Policy for Access
-
+```
+# 3️⃣ Create IAM Policy for Access
+```
 📄 iam-policy/external-secrets-policy.json
 
 {
@@ -98,8 +101,9 @@ Create the policy in AWS:
 aws iam create-policy \
   --policy-name ExternalSecretsAccess \
   --policy-document file://iam-policy/external-secrets-policy.json
-  
-4️⃣ Create IAM Role for ServiceAccount (IRSA)
+ ``` 
+# 4️⃣ Create IAM Role for ServiceAccount (IRSA)
+```
 eksctl create iamserviceaccount \
   --name external-secrets-sa \
   --namespace external-secrets \
@@ -110,9 +114,9 @@ eksctl create iamserviceaccount \
   
 Check:
 kubectl get sa external-secrets-sa -n external-secrets -o yaml
-
-5️⃣ Configure SecretStore
-
+```
+# 5️⃣ Configure SecretStore
+```
 📄 k8s/secretproviderclass.yaml
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
@@ -131,9 +135,9 @@ spec:
             
 Apply:
 kubectl apply -f k8s/secretproviderclass.yaml
-
-6️⃣ Create ExternalSecret
-
+```
+# 6️⃣ Create ExternalSecret
+```
 📄 k8s/externalsecret.yaml
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
@@ -171,9 +175,9 @@ kubectl apply -f k8s/externalsecret.yaml
 
 Verify secret synced:
 kubectl get secret db-secret -o yaml
-
-7️⃣ Create Deployment with Secrets as Env Vars
-
+```
+# 7️⃣ Create Deployment with Secrets as Env Vars
+```
 📄 k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -220,9 +224,9 @@ spec:
               
 Apply:
 kubectl apply -f k8s/deployment.yaml
-
-8️⃣ Create Service (Optional)
-
+```
+# 8️⃣ Create Service (Optional)
+```
 📄 k8s/service.yaml
 apiVersion: v1
 kind: Service
@@ -239,9 +243,9 @@ spec:
   
 Apply:
 kubectl apply -f k8s/service.yaml
-
-9️⃣ Verify Everything
-
+```
+# 9️⃣ Verify Everything
+```
 Check ESO status:
 kubectl get externalsecret
 kubectl describe externalsecret db-credentials
