@@ -115,8 +115,10 @@ spec:
               name: app-config
               key: LOG_LEVEL
 ✅ Useful when you need only 1 or 2 specific values.
+```
+## 🧠 4. Folder Structure (Best Practice)
 
-🧠 4. Folder Structure (Best Practice)
+```
 
 k8s/
 ├── base/
@@ -130,7 +132,7 @@ k8s/
 ```
 Each environment (dev/staging/prod) has its own ConfigMap file — with the same keys but different values.
 
-🧰 5. Example — Environment Specific Configs
+# 🧰 5. Example — Environment Specific Configs
 ```
 base/configmap.yaml
 apiVersion: v1
@@ -152,7 +154,7 @@ data:
   API_URL: "https://api.prod.myapp.com"
  ```
  
-🧩 6. ConfigMap with Helm (Dynamic Templates)
+# 🧩 6. ConfigMap with Helm (Dynamic Templates)
 ```
 templates/configmap.yaml
 apiVersion: v1
@@ -173,7 +175,7 @@ db:
   
 ✅ Helm helps manage ConfigMaps dynamically per environment.
 ```
-🔐 7. ConfigMap vs Secret
+# 🔐 7. ConfigMap vs Secret
 ```
 Feature	ConfigMap	Secret
 Data Type	Non-sensitive	Sensitive (passwords, tokens)
@@ -185,7 +187,7 @@ Command	kubectl create configmap	kubectl create secret
 Use ConfigMap for configs (e.g., app mode, URLs)
 Use Secrets or External Secrets Operator (ESO) for credentials.
 ```
-⚙️ 8. Real-World DevOps Usage
+# ⚙️ 8. Real-World DevOps Usage
 ```
 In production setups, DevOps teams:
 
@@ -199,7 +201,7 @@ Automatically reload apps when configs change
 
 Manage everything via CI/CD pipelines (Jenkins, ArgoCD, or GitHub Actions)
 ```
-🪄 9. Advanced Setup — Auto Reload Configs
+# 🪄 9. Advanced Setup — Auto Reload Configs
 ```
 If you want pods to automatically reload when ConfigMaps change:
 
@@ -214,7 +216,7 @@ metadata:
     
 ✅ When you update the ConfigMap, pods restart automatically.
 ```
- 🧩 10. Common Commands
+ # 🧩 10. Common Commands
 
 | 🧠 Task | 💻 Command |
 |----------|------------|
@@ -226,7 +228,7 @@ metadata:
 | **Restart pods after update** | `kubectl rollout restart deployment <deployment-name>` |
 
 
-🧠 11. Troubleshooting Tips
+# 🧠 11. Troubleshooting Tips
 ```
 Problem	Cause	Solution
 App not reading values	Wrong key name	Verify key matches app code
@@ -234,7 +236,7 @@ ConfigMap not found	Wrong namespace	Use -n <namespace> flag
 Values not updated	Pod cache old data	Run kubectl rollout restart
 Mount path missing	Incorrect mountPath	Check container spec
 ```
-🧾 12. Complete Example Setup
+# 🧾 12. Complete Example Setup
 ```
 deployment.yaml
 apiVersion: apps/v1
@@ -289,7 +291,7 @@ kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 ```
 
-🧰 13. Best Practices Summary
+# 🧰 13. Best Practices Summary
 ```
 ✅ Store configmaps in Git
 ✅ Separate configs by environment
@@ -299,13 +301,13 @@ kubectl apply -f service.yaml
 ✅ Restart pods or use reloader for updates
 ✅ Use Helm or Kustomize for automation
 ```
-🎉 14. Cleanup Commands
+# 🎉 14. Cleanup Commands
 ```
 kubectl delete -f deployment.yaml
 kubectl delete -f service.yaml
 kubectl delete -f configmap.yaml
 ```
-🧩 Summary
+# 🧩 Summary
 ```
 Level	Focus	Example
 Basic	Create & use configmaps	Inject ENV vars
