@@ -412,16 +412,4 @@ eksctl Official Docs
 💬 Feel free to fork & adapt this guide for multiple services.
 
 ```
-```
-## ✅ How to Use This
-```
-1. Copy the above Markdown **exactly as-is**.  
-2. On GitHub → `Add file → Create new file → Name it README.md`.  
-3. Paste content → click **Commit changes**.  
 
-It will render beautifully on GitHub — syntax highlighting, icons, sections, everything 🎯  
-
-
-
-Would you like me to create a **folder tree + sample file names** for your GitHub repo (so you can organize manifests and policies clearly under `/infra` and `/k8s`)?  
-That helps if you’ll later automate deployment via Jenkins or GitHub Actions.
