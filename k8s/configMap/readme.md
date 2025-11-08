@@ -214,15 +214,17 @@ metadata:
     
 ✅ When you update the ConfigMap, pods restart automatically.
 ```
-🧩 10. Common Commands
-Task	Command
-Create ConfigMap
-kubectl create configmap app-config --from-literal=ENV=dev
-Apply from file	kubectl apply -f configmap.yaml
-View data	kubectl get cm app-config -o yaml
-Edit	kubectl edit cm app-config
-Delete	kubectl delete cm app-config
-Restart pods after update	kubectl rollout restart deployment <deployment-name>
+ 🧩 10. Common Commands
+
+| 🧠 Task | 💻 Command |
+|----------|------------|
+| **Create ConfigMap** | `kubectl create configmap app-config --from-literal=ENV=dev` |
+| **Apply from file** | `kubectl apply -f configmap.yaml` |
+| **View data** | `kubectl get cm app-config -o yaml` |
+| **Edit ConfigMap** | `kubectl edit cm app-config` |
+| **Delete ConfigMap** | `kubectl delete cm app-config` |
+| **Restart pods after update** | `kubectl rollout restart deployment <deployment-name>` |
+
 
 🧠 11. Troubleshooting Tips
 ```
@@ -288,6 +290,7 @@ kubectl apply -f service.yaml
 ```
 
 🧰 13. Best Practices Summary
+```
 ✅ Store configmaps in Git
 ✅ Separate configs by environment
 ✅ Never store passwords here
@@ -295,7 +298,7 @@ kubectl apply -f service.yaml
 ✅ Add labels for tracking
 ✅ Restart pods or use reloader for updates
 ✅ Use Helm or Kustomize for automation
-
+```
 🎉 14. Cleanup Commands
 ```
 kubectl delete -f deployment.yaml
@@ -303,8 +306,9 @@ kubectl delete -f service.yaml
 kubectl delete -f configmap.yaml
 ```
 🧩 Summary
+```
 Level	Focus	Example
 Basic	Create & use configmaps	Inject ENV vars
 Intermediate	Environment-wise configs	Helm / Kustomize
 Advanced	Auto reload + GitOps	Reloader + CI/CD
-
+```
