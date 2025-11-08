@@ -265,8 +265,8 @@ Within a few minutes, Kubernetes secrets update automatically.
 kubectl delete -f k8s/
 aws secretsmanager delete-secret --secret-id mydb/credentials --force-delete-without-recovery
 aws iam delete-policy --policy-arn arn:aws:iam::<account-id>:policy/ExternalSecretsAccess
-
-📊 Summary
+```
+# 📊 Summary
 Step	Description
 ```
 1️⃣	Create secret in AWS Secrets Manager
