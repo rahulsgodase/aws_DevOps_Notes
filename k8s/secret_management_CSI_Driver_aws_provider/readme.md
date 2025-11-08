@@ -105,8 +105,9 @@ kubectl get pods -n kube-system | grep provider-aws
     }
   ]
 }
-
+```
 Create policy:
+```
 aws iam create-policy \
   --policy-name CSISecretsAccess \
   --policy-document file://iam-policy/csi-secrets-policy.json
@@ -119,13 +120,15 @@ eksctl create iamserviceaccount \
   --attach-policy-arn arn:aws:iam::<account-id>:policy/CSISecretsAccess \
   --approve \
   --override-existing-serviceaccounts
-
+```
 Verify:
+```
 kubectl get sa csi-secrets-sa -o yaml
 ```
 # 5️⃣ Configure SecretProviderClass
-```
+
 📄 k8s/secretproviderclass.yaml
+```
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
@@ -209,17 +212,14 @@ kubectl get secret synced-db-secret -o yaml
 # 8️⃣ Verify Secrets in Pod
 ```
 Check that the secrets are mounted properly:
-```
 kubectl exec -it deploy/java-app -- ls /mnt/secrets-store
-```
+
 Expected output:
-```
 mydb/credentials
-```
+
 View the secret file contents:
-```
 kubectl exec -it deploy/java-app -- cat /mnt/secrets-store/mydb/credentials
-```
+
 ```
 # 🧹 Cleanup
 ```
