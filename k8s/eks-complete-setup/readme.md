@@ -63,10 +63,10 @@ helm version
 
 Configure AWS CLI:
 aws configure
-# Enter ACCESS_KEY, SECRET_KEY, region (us-east-1), output (json)
-
-🏗️ B. Create EKS Cluster
-
+Enter ACCESS_KEY, SECRET_KEY, region (us-east-1), output (json)
+```
+# 🏗️ B. Create EKS Cluster
+```
 Create eks-cluster.yaml:
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
@@ -90,8 +90,9 @@ managedNodeGroups:
 Create the cluster:
 eksctl create cluster -f eks-cluster.yaml
 🕒 Takes around 15–20 minutes.
-
-🔐 C. Enable OIDC Provider
+```
+# 🔐 C. Enable OIDC Provider
+```
 eksctl utils associate-iam-oidc-provider \
   --cluster my-microservices-cluster \
   --approve
@@ -99,9 +100,9 @@ eksctl utils associate-iam-oidc-provider \
 Check OIDC:
 aws eks describe-cluster --name my-microservices-cluster \
   --query "cluster.identity.oidc.issuer" --output text
-
-🧾 D. IAM Policies
-
+```
+# 🧾 D. IAM Policies
+```
 1️⃣ AWS Load Balancer Controller
 curl -o iam_policy_lb_controller.json \
   https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.1/docs/install/iam_policy.json
@@ -139,9 +140,9 @@ aws iam create-policy \
 3️⃣ EBS CSI
 Use AWS managed policy:
 arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-
-🧩 E. Create IAM Roles via IRSA
-
+```
+# 🧩 E. Create IAM Roles via IRSA
+```
 # AWS Load Balancer Controller
 eksctl create iamserviceaccount \
   --cluster my-microservices-cluster \
@@ -165,9 +166,9 @@ eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
   --approve --override-existing-serviceaccounts
-
-⚙️ F. Install Core Controllers (Helm)
-
+```
+# ⚙️ F. Install Core Controllers (Helm)
+```
 1️⃣ cert-manager
 kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
@@ -224,8 +225,9 @@ eksctl create addon \
   --cluster my-microservices-cluster \
   --name aws-ebs-csi-driver \
   --force
-
-🧱 G. Deploy Java Microservice
+```
+# 🧱 G. Deploy Java Microservice
+```
 Namespace
 apiVersion: v1
 kind: Namespace
@@ -298,9 +300,9 @@ kubectl apply -f apps-namespace.yaml
 kubectl apply -f deployment-svc-a.yaml
 kubectl apply -f service-svc-a.yaml
 kubectl apply -f ingress-apps.yaml
-
-📦 H. Optional: Storage + HPA
-
+```
+# 📦 H. Optional: Storage + HPA
+```
 StorageClass (storage-ebs-sc.yaml)
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -347,9 +349,9 @@ spec:
       target:
         type: Utilization
         averageUtilization: 60
-
-🔍 I. Verify & Troubleshoot
-
+```
+# 🔍 I. Verify & Troubleshoot
+```
 kubectl get nodes
 kubectl get pods -n kube-system
 kubectl get pods -n apps
@@ -358,9 +360,9 @@ kubectl describe ingress apps-ingress -n apps
 Check logs:
 kubectl -n kube-system logs deploy/aws-load-balancer-controller
 kubectl -n external-dns logs deploy/external-dns
-
-🏗️ J. Build & Push Image to ECR
-
+```
+# 🏗️ J. Build & Push Image to ECR
+```
 aws ecr create-repository --repository-name svc-a
 aws ecr get-login-password | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
 
@@ -369,9 +371,9 @@ docker tag svc-a:1.0 <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
 docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
 
 kubectl set image deployment/svc-a -n apps svc-a=<AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
-
+```
 ✅ K. Summary Checklist
-
+```
 Component	Status
 EKS cluster	✅
 OIDC provider	✅
@@ -381,9 +383,9 @@ Controllers installed	✅
 Java microservice deployed	✅
 Ingress (ALB) working	✅
 ExternalDNS + Route53	✅
-
-🛡️ L. Production Tips
-
+```
+# 🛡️ L. Production Tips
+```
 Switch Let’s Encrypt staging → production
 
 Restrict Route53 policy to specific hosted zone ARN
@@ -395,9 +397,9 @@ Add NetworkPolicies for pod isolation
 Use private subnets if service not public-facing
 
 Regularly rotate IAM keys and audit via CloudTrail
-
+```
 📚 References
-
+```
 AWS Load Balancer Controller Docs
 
 ExternalDNS AWS Guide
@@ -405,14 +407,14 @@ ExternalDNS AWS Guide
 Amazon EBS CSI Driver
 
 eksctl Official Docs
-
+```
 🧠 Author: Complete EKS Setup Guide for Java Microservices
 💬 Feel free to fork & adapt this guide for multiple services.
 
-
-
+```
+```
 ## ✅ How to Use This
-
+```
 1. Copy the above Markdown **exactly as-is**.  
 2. On GitHub → `Add file → Create new file → Name it README.md`.  
 3. Paste content → click **Commit changes**.  
