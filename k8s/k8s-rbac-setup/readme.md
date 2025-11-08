@@ -30,29 +30,24 @@ scripts/
 └── apply-rbac.sh
 ```
 
-yaml
-Copy code
-
 ---
 
 ## 🚀 Step-by-Step Setup
 
 ### 1️⃣ Create IAM User in AWS
 
-```bash
+```
 aws iam create-user --user-name dev-rahul
 Attach minimal permissions (required to describe EKS clusters):
 
-bash
-Copy code
+
 aws iam attach-user-policy \
   --user-name dev-rahul \
   --policy-arn arn:aws:iam::aws:policy/AmazonEKSReadOnlyAccess
 
 Or create a minimal custom policy:
 
-json
-Copy code
+
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -60,38 +55,31 @@ Copy code
     { "Effect": "Allow", "Action": ["sts:GetCallerIdentity"], "Resource": "*" }
   ]
 }
-
+```
 ### 2️ Configure IAM User Locally
-
+```
 Generate access keys and configure a local AWS CLI profile:
-
-bash
-Copy code
 aws iam create-access-key --user-name dev-rahul
+
 aws configure --profile dev-rahul
 # Enter Access Key, Secret, Region, Output Format
-
+```
 ### 3️⃣ Map IAM User in EKS aws-auth ConfigMap
+```
 Edit the aws-auth ConfigMap in your EKS cluster:
-
-bash
-Copy code
 kubectl -n kube-system edit configmap aws-auth
-Add this entry under mapUsers:
 
-yaml
-Copy code
+Add this entry under mapUsers:
 mapUsers: |
   - userarn: arn:aws:iam::<AWS_ACCOUNT_ID>:user/dev-rahul
     username: dev-rahul
     groups:
       - devs
 ✅ This maps your AWS IAM user dev-rahul to the Kubernetes user dev-rahul and assigns them to the devs group.
-
+```
 ### 4️⃣ Apply Kubernetes RBAC YAMLs
+```
 rbac/namespace.yaml
-yaml
-Copy code
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -99,8 +87,6 @@ metadata:
 
 
 rbac/role.yaml
-yaml
-Copy code
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -116,8 +102,6 @@ rules:
 
 
 rbac/rolebinding-group.yaml
-yaml
-Copy code
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -134,8 +118,6 @@ roleRef:
 
 
 rbac/clusterrole.yaml
-yaml
-Copy code
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -150,8 +132,6 @@ rules:
 
 
 rbac/clusterrolebinding.yaml
-yaml
-Copy code
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -164,16 +144,14 @@ roleRef:
   kind: ClusterRole
   name: developer-read-only
   apiGroup: rbac.authorization.k8s.io
-
-⚙️ 5️⃣ Apply Everything with One Script
+```
+# ⚙️ 5️⃣ Apply Everything with One Script
+```
 scripts/apply-rbac.sh
-bash
-Copy code
+
 #!/bin/bash
 set -euo pipefail
-
 echo "Applying Kubernetes RBAC setup..."
-
 kubectl apply -f rbac/namespace.yaml
 kubectl apply -f rbac/role.yaml
 kubectl apply -f rbac/rolebinding-group.yaml
@@ -181,47 +159,37 @@ kubectl apply -f rbac/clusterrole.yaml
 kubectl apply -f rbac/clusterrolebinding.yaml
 
 echo "✅ RBAC setup applied successfully!"
+
 Make it executable:
-
-bash
-Copy code
 chmod +x scripts/apply-rbac.sh
+
 Then run:
-
-bash
-Copy code
 ./scripts/apply-rbac.sh
-
-🧠 6️⃣ Test Access as IAM User
+```
+# 🧠 6️⃣ Test Access as IAM User
+```
 Use the IAM user profile to connect to the cluster:
-
-bash
-Copy code
 AWS_PROFILE=dev-rahul aws eks update-kubeconfig \
   --name <CLUSTER_NAME> \
   --region <REGION> \
   --alias dev-rahul-context
-Switch context:
 
-bash
-Copy code
+Switch context:
 kubectl config use-context dev-rahul-context
 Test access:
 
-bash
-Copy code
 kubectl auth can-i list pods -n rbac-demo
 kubectl auth can-i create pods -n rbac-demo
 kubectl auth can-i get namespaces
+
 ✅ Expected:
 
 Allowed: get/list/watch pods, services, namespaces
 
 Denied: create/update/delete pods
-
-🧹 7️⃣ Cleanup
-bash
-Copy code
+```
+# 🧹 7️⃣ Cleanup
+```
 kubectl delete -f rbac/clusterrolebinding.yaml
 kubectl delete -f rbac/clusterrole.yaml
 kubectl delete -f rbac/rolebinding-group.yaml
@@ -236,15 +204,11 @@ Use groups (devs, ops, qa) instead of individual user bindings.
 Avoid using system:masters group except for cluster admins.
 
 Validate access anytime using:
-
-bash
-Copy code
 kubectl auth can-i <verb> <resource> -n <namespace>
 Manage aws-auth ConfigMap using IaC tools like eksctl, Terraform, or Helm to prevent drift.
 
 🧭 Git Commands to Push Repo
-bash
-Copy code
+
 git init
 git add .
 git commit -m "Add complete AWS IAM to Kubernetes RBAC setup"
