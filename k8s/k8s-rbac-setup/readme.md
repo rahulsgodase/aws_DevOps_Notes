@@ -34,8 +34,8 @@ scripts/
 ## 🚀 Step-by-Step Setup
 
  1️⃣ Create Namespace
-```bash
 kubectl apply -f rbac/namespace.yaml
+
 2️⃣ Create Service Account
 kubectl apply -f rbac/serviceaccount.yaml
 
@@ -69,12 +69,11 @@ kubectl delete clusterrole developer-read-only
 kubectl delete clusterrolebinding developer-read-only-binding
 
 
-Maintainer: Your Name
-License: MIT
+
 ## 📄 RBAC YAML Files
 
-### 1️⃣ `namespace.yaml`
-```yaml
+### 1️⃣ namespace.yaml
+yaml
 apiVersion: v1
 kind: Namespace
 metadata:
