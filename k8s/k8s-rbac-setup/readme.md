@@ -14,6 +14,7 @@ To understand and implement Role-Based Access Control (RBAC) in Kubernetes step 
 ---
 
 ## 🧱 Folder Structure
+'''
 rbac/
 ├── namespace.yaml
 ├── serviceaccount.yaml
@@ -22,8 +23,11 @@ rbac/
 ├── clusterrole.yaml
 ├── clusterrolebinding.yaml
 └── test-pod.yaml
+
+
 scripts/
 └── apply.sh
+'''
 
 
 ## 🚀 Step-by-Step Setup
