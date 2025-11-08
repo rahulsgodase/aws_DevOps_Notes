@@ -2,7 +2,6 @@
 
 A complete step-by-step setup to securely inject **database credentials (username, password, endpoint, port)** from **AWS Secrets Manager** into a **Kubernetes Pod** using **External Secrets Operator (ESO)** and **IAM Role for Service Accounts (IRSA)**.
 
----
 
 ## 📘 Table of Contents
 1. [Overview](#-overview)
@@ -22,7 +21,6 @@ A complete step-by-step setup to securely inject **database credentials (usernam
 15. [Summary](#-summary)
 16. [Maintainer](#-maintainer)
 
----
 
 ## 💡 Overview
 
@@ -35,10 +33,8 @@ It removes the need to hardcode secrets in Kubernetes YAML.
 - IAM Role for Service Account (IRSA)
 - Kubernetes Deployment consuming secrets as environment variables
 
----
-
-## 📁 Folder Structure
-
+```
+# 📁 Folder Structure
 ```
 db-secret-setup/
 ├── iam-policy/
