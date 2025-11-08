@@ -215,14 +215,17 @@ Check:
 kubectl get secret synced-db-secret -o yaml
 ```
 # 8️⃣ Verify Secrets in Pod
-```
+
 Check that the secrets are mounted properly:
+```
 kubectl exec -it deploy/java-app -- ls /mnt/secrets-store
-
+```
 Expected output:
+```
 mydb/credentials
-
+```
 View the secret file contents:
+```
 kubectl exec -it deploy/java-app -- cat /mnt/secrets-store/mydb/credentials
 
 ```
