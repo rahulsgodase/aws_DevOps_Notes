@@ -251,24 +251,24 @@ kubectl get secret db-secret -o yaml
 
 Check environment variables in pod:
 kubectl exec -it deploy/java-app -- env | grep DB_
-
-🔄 10️⃣ Rotate Secrets Automatically
-
+```
+# 🔄 10️⃣ Rotate Secrets Automatically
+```
 ESO auto-syncs when you update the AWS secret.
 aws secretsmanager update-secret \
   --secret-id mydb/credentials \
   --secret-string '{"username":"admin","password":"NewSecureP@ssword","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
 Within a few minutes, Kubernetes secrets update automatically.
-
-🧹 Cleanup
-
+```
+# 🧹 Cleanup
+```
 kubectl delete -f k8s/
 aws secretsmanager delete-secret --secret-id mydb/credentials --force-delete-without-recovery
 aws iam delete-policy --policy-arn arn:aws:iam::<account-id>:policy/ExternalSecretsAccess
 
 📊 Summary
 Step	Description
-
+```
 1️⃣	Create secret in AWS Secrets Manager
 2️⃣	Install External Secrets Operator
 3️⃣	Create IAM policy for access
