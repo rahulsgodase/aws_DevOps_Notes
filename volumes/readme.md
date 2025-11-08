@@ -22,17 +22,17 @@ Cluster name
 AWS region
 
 Set them as environment variables for convenience:
-
+```
 export CLUSTER=my-eks-cluster
 export REGION=ap-south-1
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
+```
 # 2 Create IAM Policy for EBS CSI Driver
 
 This policy lets the driver create, attach, delete, and describe EBS volumes.
 
 Create file ebs-csi-policy.json:
-
+```
 cat > ebs-csi-policy.json <<EOF
 {
   "Version": "2012-10-17",
@@ -59,18 +59,18 @@ cat > ebs-csi-policy.json <<EOF
 }
 EOF
 
-
+```
 Now create the IAM policy:
-
+```
 aws iam create-policy \
   --policy-name AmazonEKS_EBS_CSI_Policy \
   --policy-document file://ebs-csi-policy.json
 
-
+```
 Copy the policy ARN from the output or store it automatically:
-
+```
 export POLICY_ARN=arn:aws:iam::${ACCOUNT_ID}:policy/AmazonEKS_EBS_CSI_Policy
-
+```
 # 3 Create IAM Role + K8s Service Account (IRSA)
 
 This command does everything for you — creates:
@@ -84,7 +84,7 @@ creates a Kubernetes ServiceAccount,
 and attaches the IAM policy to it.
 
 Run:
-
+```
 eksctl create iamserviceaccount \
   --cluster ${CLUSTER} \
   --region ${REGION} \
@@ -93,14 +93,14 @@ eksctl create iamserviceaccount \
   --attach-policy-arn ${POLICY_ARN} \
   --override-existing-serviceaccounts \
   --approve
-
+```
 
 ✅ This creates a ServiceAccount in kube-system namespace with IRSA.
 
 # 4 Install EBS CSI Driver Using Helm
 
 Add and install the Helm chart:
-
+```
 helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
 helm repo update
 
@@ -109,11 +109,12 @@ helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
   --set controller.serviceAccount.create=false \
   --set controller.serviceAccount.name=ebs-csi-controller-sa
 
-
+```
 ✅ This installs the EBS CSI controller & node components using the IRSA role you just created.
 
 # 5 Create a StorageClass, PVC, and Test Pod
 StorageClass
+```
 cat > storageclass-ebs.yaml <<EOF
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -126,8 +127,9 @@ parameters:
 reclaimPolicy: Delete
 EOF
 kubectl apply -f storageclass-ebs.yaml
-
+```
 PVC
+```
 cat > pvc-ebs.yaml <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -142,8 +144,9 @@ spec:
       storage: 4Gi
 EOF
 kubectl apply -f pvc-ebs.yaml
-
+```
 Pod
+```
 cat > pod-test.yaml <<EOF
 apiVersion: v1
 kind: Pod
@@ -164,29 +167,34 @@ spec:
 EOF
 kubectl apply -f pod-test.yaml
 
-
+```
 # 6 Verify Setup
 ######## Check CSI driver pods ##########
+```
 kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
-
+```
 ########Check PVC/PV ############
+```
 kubectl get pvc
 kubectl get pv
-
+```
 ####### See details #########
+```
 kubectl describe pvc ebs-pvc
 kubectl describe pod ebs-test
-
+```
 ########Test inside pod #######
+```
 kubectl exec -it ebs-test -- sh
 echo "Hello from EBS!" > /data/test.txt
 cat /data/test.txt
 exit
 
-
+```
 In AWS Console → EC2 → Volumes, you’ll see a new EBS volume tagged with your PVC name.
 
 # 7 Cleanup (optional)
+```
 kubectl delete -f pod-test.yaml
 kubectl delete -f pvc-ebs.yaml
 kubectl delete -f storageclass-ebs.yaml
@@ -197,8 +205,8 @@ eksctl delete iamserviceaccount \
   --cluster ${CLUSTER} \
   --namespace kube-system \
   --name ebs-csi-controller-sa
-
-🧩 8️⃣ How It Works (Internally)
+```
+# 🧩 8️⃣ How It Works (Internally)
 
 The EBS CSI controller (running in kube-system) creates and manages EBS volumes via AWS API.
 
