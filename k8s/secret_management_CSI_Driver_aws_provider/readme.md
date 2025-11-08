@@ -51,15 +51,16 @@ aws-secrets-csi/
 └── scripts/
     └── apply.sh
 ```
-🧩 Prerequisites
+# 🧩 Prerequisites
+```
 AWS CLI configured (aws configure)
 
 kubectl, helm, and eksctl installed
 
 EKS cluster with OIDC provider enabled:
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
-
-1️⃣ Create AWS Secret
+```
+# 1️⃣ Create AWS Secret
 ```
 Store DB credentials in Secrets Manager:
 
@@ -67,9 +68,9 @@ aws secretsmanager create-secret \
   --name mydb/credentials \
   --description "Database credentials for CSI driver test" \
   --secret-string '{"username":"admin","password":"SuperSecurePass123","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
-  
-2️⃣ Install Secrets Store CSI Driver
-
+  ```
+# 2️⃣ Install Secrets Store CSI Driver
+```
 Install via Helm:
 helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 helm repo update
@@ -78,17 +79,17 @@ helm install csi-driver secrets-store-csi-driver/secrets-store-csi-driver \
   
 Verify installation:
 kubectl get pods -n kube-system | grep csi
-
-3️⃣ Install AWS Provider for CSI Driver
-
+```
+# 3️⃣ Install AWS Provider for CSI Driver
+```
 Apply the AWS provider manifest:
 kubectl apply -f https://github.com/aws/secrets-store-csi-driver-provider-aws/releases/latest/download/provider-aws-installer.yaml
 
 Check:
 kubectl get pods -n kube-system | grep provider-aws
-
-4️⃣ Create IAM Policy and Role for Access (IRSA)
-
+```
+# 4️⃣ Create IAM Policy and Role for Access (IRSA)
+```
 📄 iam-policy/csi-secrets-policy.json
 
 {
@@ -121,9 +122,9 @@ eksctl create iamserviceaccount \
 
 Verify:
 kubectl get sa csi-secrets-sa -o yaml
-
-5️⃣ Configure SecretProviderClass
-
+```
+# 5️⃣ Configure SecretProviderClass
+```
 📄 k8s/secretproviderclass.yaml
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
@@ -139,9 +140,9 @@ spec:
         
 Apply:
 kubectl apply -f k8s/secretproviderclass.yaml
-
-6️⃣ Create Deployment with Mounted Secrets
-
+```
+# 6️⃣ Create Deployment with Mounted Secrets
+```
 📄 k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -178,9 +179,9 @@ spec:
             
 Apply:
 kubectl apply -f k8s/deployment.yaml
-
-7️⃣ (Optional) Sync Secrets as Kubernetes Secret
-
+```
+# 7️⃣ (Optional) Sync Secrets as Kubernetes Secret
+```
 You can sync CSI-mounted secrets as Kubernetes Secrets automatically.
 
 Modify your SecretProviderClass:
@@ -202,9 +203,9 @@ kubectl apply -f k8s/secretproviderclass.yaml
 
 Check:
 kubectl get secret synced-db-secret -o yaml
-
-8️⃣ Verify Secrets in Pod
-
+```
+# 8️⃣ Verify Secrets in Pod
+```
 Check that the secrets are mounted properly:
 kubectl exec -it deploy/java-app -- ls /mnt/secrets-store
 
@@ -213,14 +214,17 @@ mydb/credentials
 
 View the secret file contents:
 kubectl exec -it deploy/java-app -- cat /mnt/secrets-store/mydb/credentials
-
+```
 🧹 Cleanup
+```
 kubectl delete -f k8s/
 aws secretsmanager delete-secret --secret-id mydb/credentials --force-delete-without-recovery
 aws iam delete-policy --policy-arn arn:aws:iam::<account-id>:policy/CSISecretsAccess
+```
+# 📊 Summary
 
-📊 Summary
 Step	Description
+```
 1️⃣	Create secret in AWS Secrets Manager
 2️⃣	Install Secrets Store CSI Driver
 3️⃣	Install AWS Provider
@@ -231,9 +235,9 @@ Step	Description
 8️⃣	Verify inside pod
 9️⃣	Cleanup
 
-
-🚀 Quick Apply Script
-
+```
+# 🚀 Quick Apply Script
+```
 📄 scripts/apply.sh
 #!/bin/bash
 kubectl apply -f k8s/secretproviderclass.yaml
