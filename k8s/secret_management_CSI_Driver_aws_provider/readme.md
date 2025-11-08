@@ -142,8 +142,9 @@ Apply:
 kubectl apply -f k8s/secretproviderclass.yaml
 ```
 # 6️⃣ Create Deployment with Mounted Secrets
-```
+
 📄 k8s/deployment.yaml
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -181,10 +182,11 @@ Apply:
 kubectl apply -f k8s/deployment.yaml
 ```
 # 7️⃣ (Optional) Sync Secrets as Kubernetes Secret
-```
+
 You can sync CSI-mounted secrets as Kubernetes Secrets automatically.
 
 Modify your SecretProviderClass:
+```
 spec:
   provider: aws
   parameters:
@@ -207,15 +209,19 @@ kubectl get secret synced-db-secret -o yaml
 # 8️⃣ Verify Secrets in Pod
 ```
 Check that the secrets are mounted properly:
+```
 kubectl exec -it deploy/java-app -- ls /mnt/secrets-store
-
+```
 Expected output:
+```
 mydb/credentials
-
+```
 View the secret file contents:
+```
 kubectl exec -it deploy/java-app -- cat /mnt/secrets-store/mydb/credentials
 ```
-🧹 Cleanup
+```
+# 🧹 Cleanup
 ```
 kubectl delete -f k8s/
 aws secretsmanager delete-secret --secret-id mydb/credentials --force-delete-without-recovery
@@ -237,8 +243,9 @@ Step	Description
 
 ```
 # 🚀 Quick Apply Script
-```
+
 📄 scripts/apply.sh
+```
 #!/bin/bash
 kubectl apply -f k8s/secretproviderclass.yaml
 kubectl apply -f k8s/deployment.yaml
