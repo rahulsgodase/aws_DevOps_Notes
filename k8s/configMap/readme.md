@@ -131,7 +131,7 @@ k8s/
 Each environment (dev/staging/prod) has its own ConfigMap file — with the same keys but different values.
 
 🧰 5. Example — Environment Specific Configs
-```
+
 base/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
