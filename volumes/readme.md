@@ -1,6 +1,6 @@
-Integrate Amazon EBS with your EKS cluster so pods can dynamically get and mount EBS volumes securely using IAM Roles for Service Accounts (IRSA) — all automated by eksctl.
+# Integrate Amazon EBS with your EKS cluster so pods can dynamically get and mount EBS volumes securely using IAM Roles for Service Accounts (IRSA) — all automated by eksctl.
 
-🛠️ 1️⃣ Prerequisites
+ # 1 Prerequisites
 
 Make sure you have:
 
@@ -27,7 +27,7 @@ export CLUSTER=my-eks-cluster
 export REGION=ap-south-1
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-🧩 2️⃣ Create IAM Policy for EBS CSI Driver
+# 2 Create IAM Policy for EBS CSI Driver
 
 This policy lets the driver create, attach, delete, and describe EBS volumes.
 
@@ -71,7 +71,7 @@ Copy the policy ARN from the output or store it automatically:
 
 export POLICY_ARN=arn:aws:iam::${ACCOUNT_ID}:policy/AmazonEKS_EBS_CSI_Policy
 
-🧩 3️⃣ Create IAM Role + K8s Service Account (IRSA)
+# 3 Create IAM Role + K8s Service Account (IRSA)
 
 This command does everything for you — creates:
 
@@ -97,7 +97,7 @@ eksctl create iamserviceaccount \
 
 ✅ This creates a ServiceAccount in kube-system namespace with IRSA.
 
-🧩 4️⃣ Install EBS CSI Driver Using Helm
+# 4 Install EBS CSI Driver Using Helm
 
 Add and install the Helm chart:
 
@@ -112,7 +112,7 @@ helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
 
 ✅ This installs the EBS CSI controller & node components using the IRSA role you just created.
 
-🧩 5️⃣ Create a StorageClass, PVC, and Test Pod
+# 5 Create a StorageClass, PVC, and Test Pod
 StorageClass
 cat > storageclass-ebs.yaml <<EOF
 apiVersion: storage.k8s.io/v1
@@ -164,19 +164,20 @@ spec:
 EOF
 kubectl apply -f pod-test.yaml
 
-🧩 6️⃣ Verify Setup
-# Check CSI driver pods
+
+# 6 Verify Setup
+######## Check CSI driver pods ##########
 kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
 
-# Check PVC/PV
+########Check PVC/PV ############
 kubectl get pvc
 kubectl get pv
 
-# See details
+####### See details #########
 kubectl describe pvc ebs-pvc
 kubectl describe pod ebs-test
 
-# Test inside pod
+########Test inside pod #######
 kubectl exec -it ebs-test -- sh
 echo "Hello from EBS!" > /data/test.txt
 cat /data/test.txt
@@ -185,7 +186,7 @@ exit
 
 In AWS Console → EC2 → Volumes, you’ll see a new EBS volume tagged with your PVC name.
 
-🧩 7️⃣ Cleanup (optional)
+# 7 Cleanup (optional)
 kubectl delete -f pod-test.yaml
 kubectl delete -f pvc-ebs.yaml
 kubectl delete -f storageclass-ebs.yaml
