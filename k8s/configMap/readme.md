@@ -131,7 +131,7 @@ k8s/
 Each environment (dev/staging/prod) has its own ConfigMap file — with the same keys but different values.
 
 🧰 5. Example — Environment Specific Configs
-
+```
 base/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -150,9 +150,10 @@ metadata:
 data:
   LOG_LEVEL: "warn"
   API_URL: "https://api.prod.myapp.com"
-  
+ ```
+ 
 🧩 6. ConfigMap with Helm (Dynamic Templates)
-
+```
 templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -171,9 +172,9 @@ db:
   host: "db.prod.internal"
   
 ✅ Helm helps manage ConfigMaps dynamically per environment.
-
+```
 🔐 7. ConfigMap vs Secret
-
+```
 Feature	ConfigMap	Secret
 Data Type	Non-sensitive	Sensitive (passwords, tokens)
 Encoding	Plain text	Base64 encoded
@@ -183,9 +184,9 @@ Command	kubectl create configmap	kubectl create secret
 👉 Best Practice:
 Use ConfigMap for configs (e.g., app mode, URLs)
 Use Secrets or External Secrets Operator (ESO) for credentials.
-
+```
 ⚙️ 8. Real-World DevOps Usage
-
+```
 In production setups, DevOps teams:
 
 Store ConfigMaps in Git (for GitOps)
@@ -197,9 +198,9 @@ Use External Secrets Operator for secrets
 Automatically reload apps when configs change
 
 Manage everything via CI/CD pipelines (Jenkins, ArgoCD, or GitHub Actions)
-
+```
 🪄 9. Advanced Setup — Auto Reload Configs
-
+```
 If you want pods to automatically reload when ConfigMaps change:
 
 Install Reloader (by Stakater):
@@ -212,7 +213,7 @@ metadata:
     reloader.stakater.com/auto: "true"
     
 ✅ When you update the ConfigMap, pods restart automatically.
-
+```
 🧩 10. Common Commands
 Task	Command
 Create ConfigMap
@@ -224,13 +225,15 @@ Delete	kubectl delete cm app-config
 Restart pods after update	kubectl rollout restart deployment <deployment-name>
 
 🧠 11. Troubleshooting Tips
+```
 Problem	Cause	Solution
 App not reading values	Wrong key name	Verify key matches app code
 ConfigMap not found	Wrong namespace	Use -n <namespace> flag
 Values not updated	Pod cache old data	Run kubectl rollout restart
 Mount path missing	Incorrect mountPath	Check container spec
-
+```
 🧾 12. Complete Example Setup
+```
 deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -294,10 +297,11 @@ kubectl apply -f service.yaml
 ✅ Use Helm or Kustomize for automation
 
 🎉 14. Cleanup Commands
+```
 kubectl delete -f deployment.yaml
 kubectl delete -f service.yaml
 kubectl delete -f configmap.yaml
-
+```
 🧩 Summary
 Level	Focus	Example
 Basic	Create & use configmaps	Inject ENV vars
