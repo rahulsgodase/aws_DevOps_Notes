@@ -57,39 +57,29 @@ AWS CLI configured (aws configure)
 kubectl, helm, and eksctl installed
 
 Existing EKS cluster with OIDC provider enabled
-
-bash
-Copy code
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
 
 1️⃣ Create Secret in AWS Secrets Manager
-bash
-Copy code
 aws secretsmanager create-secret \
   --name mydb/credentials \
   --description "Database credentials for app" \
   --secret-string '{"username":"admin","password":"P@ssw0rd123","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
   
 2️⃣ Install External Secrets Operator
-bash
-Copy code
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
 
 helm install external-secrets external-secrets/external-secrets \
   --namespace external-secrets \
   --create-namespace
+  
 Check installation:
-
-bash
-Copy code
 kubectl get pods -n external-secrets
 
 3️⃣ Create IAM Policy for Access
+
 📄 iam-policy/external-secrets-policy.json
 
-json
-Copy code
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -103,17 +93,13 @@ Copy code
     }
   ]
 }
-Create the policy in AWS:
 
-bash
-Copy code
+Create the policy in AWS:
 aws iam create-policy \
   --policy-name ExternalSecretsAccess \
   --policy-document file://iam-policy/external-secrets-policy.json
   
 4️⃣ Create IAM Role for ServiceAccount (IRSA)
-bash
-Copy code
 eksctl create iamserviceaccount \
   --name external-secrets-sa \
   --namespace external-secrets \
@@ -121,17 +107,13 @@ eksctl create iamserviceaccount \
   --attach-policy-arn arn:aws:iam::<account-id>:policy/ExternalSecretsAccess \
   --approve \
   --override-existing-serviceaccounts
+  
 Check:
-
-bash
-Copy code
 kubectl get sa external-secrets-sa -n external-secrets -o yaml
 
 5️⃣ Configure SecretStore
-📄 k8s/secretproviderclass.yaml
 
-yaml
-Copy code
+📄 k8s/secretproviderclass.yaml
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
@@ -146,17 +128,13 @@ spec:
         jwt:
           serviceAccountRef:
             name: external-secrets-sa
+            
 Apply:
-
-bash
-Copy code
 kubectl apply -f k8s/secretproviderclass.yaml
 
 6️⃣ Create ExternalSecret
-📄 k8s/externalsecret.yaml
 
-yaml
-Copy code
+📄 k8s/externalsecret.yaml
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
@@ -187,22 +165,16 @@ spec:
       remoteRef:
         key: mydb/credentials
         property: port
+        
 Apply:
-
-bash
-Copy code
 kubectl apply -f k8s/externalsecret.yaml
-Verify secret synced:
 
-bash
-Copy code
+Verify secret synced:
 kubectl get secret db-secret -o yaml
 
 7️⃣ Create Deployment with Secrets as Env Vars
-📄 k8s/deployment.yaml
 
-yaml
-Copy code
+📄 k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -245,17 +217,13 @@ spec:
             secretKeyRef:
               name: db-secret
               key: port
+              
 Apply:
-
-bash
-Copy code
 kubectl apply -f k8s/deployment.yaml
 
 8️⃣ Create Service (Optional)
-📄 k8s/service.yaml
 
-yaml
-Copy code
+📄 k8s/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -268,48 +236,39 @@ spec:
       targetPort: 8080
       protocol: TCP
   type: ClusterIP
+  
 Apply:
-
-bash
-Copy code
 kubectl apply -f k8s/service.yaml
 
 9️⃣ Verify Everything
-Check ESO status:
 
-bash
-Copy code
+Check ESO status:
 kubectl get externalsecret
 kubectl describe externalsecret db-credentials
+
 Check synced secret:
-
-bash
-Copy code
 kubectl get secret db-secret -o yaml
-Check environment variables in pod:
 
-bash
-Copy code
+Check environment variables in pod:
 kubectl exec -it deploy/java-app -- env | grep DB_
 
 🔄 10️⃣ Rotate Secrets Automatically
-ESO auto-syncs when you update the AWS secret.
 
-bash
-Copy code
+ESO auto-syncs when you update the AWS secret.
 aws secretsmanager update-secret \
   --secret-id mydb/credentials \
   --secret-string '{"username":"admin","password":"NewSecureP@ssword","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
 Within a few minutes, Kubernetes secrets update automatically.
 
 🧹 Cleanup
-bash
-Copy code
+
 kubectl delete -f k8s/
 aws secretsmanager delete-secret --secret-id mydb/credentials --force-delete-without-recovery
 aws iam delete-policy --policy-arn arn:aws:iam::<account-id>:policy/ExternalSecretsAccess
+
 📊 Summary
 Step	Description
+
 1️⃣	Create secret in AWS Secrets Manager
 2️⃣	Install External Secrets Operator
 3️⃣	Create IAM policy for access
