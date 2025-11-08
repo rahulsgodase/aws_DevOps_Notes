@@ -60,7 +60,7 @@ Existing EKS cluster with OIDC provider enabled
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
 
 1️⃣ Create Secret in AWS Secrets Manager
-aws secretsmanager create-secret \
+```aws secretsmanager create-secret \
   --name mydb/credentials \
   --description "Database credentials for app" \
   --secret-string '{"username":"admin","password":"P@ssw0rd123","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
@@ -278,3 +278,4 @@ Step	Description
 7️⃣	Inject into pods via env vars
 8️⃣	Verify + Rotate secrets
 9️⃣	Cleanup when done
+```
