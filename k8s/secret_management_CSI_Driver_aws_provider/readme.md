@@ -59,7 +59,7 @@ kubectl, helm, and eksctl installed
 EKS cluster with OIDC provider enabled:
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
 
-1️⃣ Create AWS Secret
+```1️⃣ Create AWS Secret
 Store DB credentials in Secrets Manager:
 
 aws secretsmanager create-secret \
@@ -244,7 +244,7 @@ chmod +x scripts/apply.sh
 
 Run:
 ./scripts/apply.sh
-
+```
 
 
 
