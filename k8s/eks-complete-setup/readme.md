@@ -38,7 +38,7 @@ It includes:
 
 ### Linux/macOS Quick Setup
 
-```bash
+```
 # 1️⃣ AWS CLI v2
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
@@ -54,23 +54,20 @@ sudo mv /tmp/eksctl /usr/local/bin
 
 # 4️⃣ helm v3
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-Verify installations:
 
-bash
-Copy code
+Verify installations:
 aws --version
 kubectl version --client
 eksctl version
 helm version
-Configure AWS CLI:
 
-bash
-Copy code
+Configure AWS CLI:
 aws configure
 # Enter ACCESS_KEY, SECRET_KEY, region (us-east-1), output (json)
-🏗️ B. Create EKS Cluster
-Create eks-cluster.yaml:
 
+🏗️ B. Create EKS Cluster
+
+Create eks-cluster.yaml:
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
@@ -89,38 +86,31 @@ managedNodeGroups:
     iam:
       withAddonPolicies:
         ebs: true
-Create the cluster:
 
-bash
-Copy code
+Create the cluster:
 eksctl create cluster -f eks-cluster.yaml
 🕒 Takes around 15–20 minutes.
 
 🔐 C. Enable OIDC Provider
-bash
-Copy code
 eksctl utils associate-iam-oidc-provider \
   --cluster my-microservices-cluster \
   --approve
-Check OIDC:
 
-bash
-Copy code
+Check OIDC:
 aws eks describe-cluster --name my-microservices-cluster \
   --query "cluster.identity.oidc.issuer" --output text
+
 🧾 D. IAM Policies
+
 1️⃣ AWS Load Balancer Controller
-bash
-Copy code
 curl -o iam_policy_lb_controller.json \
   https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.1/docs/install/iam_policy.json
 
 aws iam create-policy \
   --policy-name AWSLoadBalancerControllerIAMPolicy \
   --policy-document file://iam_policy_lb_controller.json
+
 2️⃣ ExternalDNS Policy (externaldns-policy.json)
-json
-Copy code
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -140,20 +130,18 @@ Copy code
     }
   ]
 }
-Create it:
 
-bash
-Copy code
+Create it:
 aws iam create-policy \
   --policy-name ExternalDNSRoute53Policy \
   --policy-document file://externaldns-policy.json
+
 3️⃣ EBS CSI
 Use AWS managed policy:
 arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
 
 🧩 E. Create IAM Roles via IRSA
-bash
-Copy code
+
 # AWS Load Balancer Controller
 eksctl create iamserviceaccount \
   --cluster my-microservices-cluster \
@@ -177,19 +165,17 @@ eksctl create iamserviceaccount \
   --name ebs-csi-controller-sa \
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
   --approve --override-existing-serviceaccounts
+
 ⚙️ F. Install Core Controllers (Helm)
+
 1️⃣ cert-manager
-bash
-Copy code
 kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager --set installCRDs=true
-clusterissuer-staging.yaml:
 
-yaml
-Copy code
+clusterissuer-staging.yaml:
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -204,14 +190,11 @@ spec:
       - http01:
           ingress:
             class: alb
-Apply:
 
-bash
-Copy code
+Apply:
 kubectl apply -f clusterissuer-staging.yaml
+
 2️⃣ AWS Load Balancer Controller (ALB)
-bash
-Copy code
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
 helm repo add eks https://aws.github.io/eks-charts
@@ -222,9 +205,8 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
   --set clusterName=my-microservices-cluster \
   --set serviceAccount.create=false \
   --set serviceAccount.name=aws-load-balancer-controller
+
 3️⃣ ExternalDNS
-bash
-Copy code
 kubectl create namespace external-dns
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
@@ -236,24 +218,22 @@ helm install external-dns bitnami/external-dns \
   --set txtOwnerId=my-eks-cluster \
   --set serviceAccount.create=false \
   --set serviceAccount.name=external-dns
+
 4️⃣ EBS CSI Driver
-bash
-Copy code
 eksctl create addon \
   --cluster my-microservices-cluster \
   --name aws-ebs-csi-driver \
   --force
+
 🧱 G. Deploy Java Microservice
 Namespace
-yaml
-Copy code
 apiVersion: v1
 kind: Namespace
 metadata:
   name: apps
+
+
 Deployment (deployment-svc-a.yaml)
-yaml
-Copy code
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -274,9 +254,8 @@ spec:
         image: image:1.0
         ports:
         - containerPort: 8080
+
 Service (service-svc-a.yaml)
-yaml
-Copy code
 apiVersion: v1
 kind: Service
 metadata:
@@ -289,9 +268,8 @@ spec:
   selector:
     app: svc-a
   type: ClusterIP
+
 Ingress (ingress-apps.yaml)
-yaml
-Copy code
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -314,18 +292,16 @@ spec:
             name: svc-a
             port:
               number: 80
-Apply all:
 
-bash
-Copy code
+Apply all:
 kubectl apply -f apps-namespace.yaml
 kubectl apply -f deployment-svc-a.yaml
 kubectl apply -f service-svc-a.yaml
 kubectl apply -f ingress-apps.yaml
+
 📦 H. Optional: Storage + HPA
+
 StorageClass (storage-ebs-sc.yaml)
-yaml
-Copy code
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -349,9 +325,9 @@ spec:
   resources:
     requests:
       storage: 10Gi
+
+
 HPA (hpa-svc-a.yaml)
-yaml
-Copy code
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -371,22 +347,20 @@ spec:
       target:
         type: Utilization
         averageUtilization: 60
+
 🔍 I. Verify & Troubleshoot
-bash
-Copy code
+
 kubectl get nodes
 kubectl get pods -n kube-system
 kubectl get pods -n apps
 kubectl describe ingress apps-ingress -n apps
-Check logs:
 
-bash
-Copy code
+Check logs:
 kubectl -n kube-system logs deploy/aws-load-balancer-controller
 kubectl -n external-dns logs deploy/external-dns
+
 🏗️ J. Build & Push Image to ECR
-bash
-Copy code
+
 aws ecr create-repository --repository-name svc-a
 aws ecr get-login-password | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
 
@@ -395,7 +369,9 @@ docker tag svc-a:1.0 <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
 docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
 
 kubectl set image deployment/svc-a -n apps svc-a=<AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/svc-a:1.0
+
 ✅ K. Summary Checklist
+
 Component	Status
 EKS cluster	✅
 OIDC provider	✅
@@ -407,6 +383,7 @@ Ingress (ALB) working	✅
 ExternalDNS + Route53	✅
 
 🛡️ L. Production Tips
+
 Switch Let’s Encrypt staging → production
 
 Restrict Route53 policy to specific hosted zone ARN
@@ -420,6 +397,7 @@ Use private subnets if service not public-facing
 Regularly rotate IAM keys and audit via CloudTrail
 
 📚 References
+
 AWS Load Balancer Controller Docs
 
 ExternalDNS AWS Guide
@@ -431,19 +409,17 @@ eksctl Official Docs
 🧠 Author: Complete EKS Setup Guide for Java Microservices
 💬 Feel free to fork & adapt this guide for multiple services.
 
-yaml
-Copy code
 
----
 
 ## ✅ How to Use This
+
 1. Copy the above Markdown **exactly as-is**.  
 2. On GitHub → `Add file → Create new file → Name it README.md`.  
 3. Paste content → click **Commit changes**.  
 
 It will render beautifully on GitHub — syntax highlighting, icons, sections, everything 🎯  
 
----
+
 
 Would you like me to create a **folder tree + sample file names** for your GitHub repo (so you can organize manifests and policies clearly under `/infra` and `/k8s`)?  
 That helps if you’ll later automate deployment via Jenkins or GitHub Actions.
