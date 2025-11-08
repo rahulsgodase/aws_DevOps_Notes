@@ -52,14 +52,14 @@ aws-secrets-csi/
     └── apply.sh
 ```
 # 🧩 Prerequisites
-```
+
 AWS CLI configured (aws configure)
 
 kubectl, helm, and eksctl installed
 
 EKS cluster with OIDC provider enabled:
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
-```
+
 # 1️⃣ Create AWS Secret
 
 Store DB credentials in Secrets Manager:
@@ -145,8 +145,9 @@ spec:
     objects: |
       - objectName: "mydb/credentials"
         objectType: "secretsmanager"
-        
+```       
 Apply:
+```
 kubectl apply -f k8s/secretproviderclass.yaml
 ```
 # 6️⃣ Create Deployment with Mounted Secrets
@@ -185,8 +186,9 @@ spec:
           readOnly: true
           volumeAttributes:
             secretProviderClass: "aws-secrets-provider"
-            
+```         
 Apply:
+```
 kubectl apply -f k8s/deployment.yaml
 ```
 # 7️⃣ (Optional) Sync Secrets as Kubernetes Secret
@@ -207,11 +209,13 @@ spec:
     data:
       - objectName: "mydb/credentials"
         key: db-creds
-
+```
 Apply:
+```
 kubectl apply -f k8s/secretproviderclass.yaml
-
+```
 Check:
+```
 kubectl get secret synced-db-secret -o yaml
 ```
 # 8️⃣ Verify Secrets in Pod
