@@ -61,37 +61,41 @@ EKS cluster with OIDC provider enabled:
 eksctl utils associate-iam-oidc-provider --cluster <your-cluster-name> --approve
 ```
 # 1️⃣ Create AWS Secret
-```
-Store DB credentials in Secrets Manager:
 
+Store DB credentials in Secrets Manager:
+```
 aws secretsmanager create-secret \
   --name mydb/credentials \
   --description "Database credentials for CSI driver test" \
   --secret-string '{"username":"admin","password":"SuperSecurePass123","host":"mydb.c9abcd123.us-east-1.rds.amazonaws.com","port":"3306"}'
   ```
 # 2️⃣ Install Secrets Store CSI Driver
-```
+
 Install via Helm:
+```
 helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 helm repo update
 helm install csi-driver secrets-store-csi-driver/secrets-store-csi-driver \
   --namespace kube-system
-  
+  ```
 Verify installation:
+```
 kubectl get pods -n kube-system | grep csi
 ```
 # 3️⃣ Install AWS Provider for CSI Driver
-```
-Apply the AWS provider manifest:
-kubectl apply -f https://github.com/aws/secrets-store-csi-driver-provider-aws/releases/latest/download/provider-aws-installer.yaml
 
+Apply the AWS provider manifest:
+```
+kubectl apply -f https://github.com/aws/secrets-store-csi-driver-provider-aws/releases/latest/download/provider-aws-installer.yaml
+```
 Check:
+```
 kubectl get pods -n kube-system | grep provider-aws
 ```
 # 4️⃣ Create IAM Policy and Role for Access (IRSA)
-```
-📄 iam-policy/csi-secrets-policy.json
 
+📄 iam-policy/csi-secrets-policy.json
+```
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -111,8 +115,9 @@ Create policy:
 aws iam create-policy \
   --policy-name CSISecretsAccess \
   --policy-document file://iam-policy/csi-secrets-policy.json
-
+```
 Create IRSA role:
+```
 eksctl create iamserviceaccount \
   --name csi-secrets-sa \
   --namespace default \
