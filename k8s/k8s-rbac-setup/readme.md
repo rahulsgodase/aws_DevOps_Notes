@@ -73,7 +73,7 @@ kubectl delete clusterrolebinding developer-read-only-binding
 ## 📄 RBAC YAML Files
 
 ### 1️⃣ namespace.yaml
-yaml
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -162,7 +162,8 @@ spec:
   containers:
   - name: curl
     image: curlimages/curl
-    command: ["sleep", "3600"]
+    command: ["sleep", "3600"] ```
+
 You can kubectl exec -it test-rbac-pod -n rbac-demo -- sh and then run:
 
 bash
