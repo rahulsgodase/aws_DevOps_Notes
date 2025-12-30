@@ -152,6 +152,73 @@ Move to:
 
 /etc/haproxy/certs/app.pem
 
+################################################################################
+## 🔷 Enable HTTPS on HAProxy Using Let’s Encrypt
+
+Follow these steps to enable HTTPS on HAProxy without using an AWS ALB.
+
+---
+
+### Step 1️⃣ Install Certbot
+
+```bash
+sudo apt update
+sudo apt install certbot -y
+Step 2️⃣ Generate SSL Certificate
+Run Certbot in standalone mode (port 80 must be free):
+
+bash
+Copy code
+sudo certbot certonly --standalone -d yourdomain.com
+This will generate:
+
+fullchain.pem (certificate)
+
+privkey.pem (private key)
+
+Step 3️⃣ Combine Certificate and Key
+HAProxy requires a single .pem file.
+
+bash
+Copy code
+sudo mkdir -p /etc/haproxy/certs
+cd /etc/letsencrypt/live/yourdomain.com
+
+sudo cat fullchain.pem privkey.pem > /etc/haproxy/certs/app.pem
+Step 4️⃣ Configure HAProxy for HTTPS
+Edit HAProxy configuration:
+
+bash
+Copy code
+sudo vi /etc/haproxy/haproxy.cfg
+Add the HTTPS frontend:
+
+cfg
+Copy code
+frontend https_front
+    bind *:443 ssl crt /etc/haproxy/certs/app.pem
+    default_backend app_servers
+Step 5️⃣ Restart HAProxy
+bash
+Copy code
+sudo systemctl restart haproxy
+sudo systemctl status haproxy
+✅ Verification
+Open in browser:
+
+arduino
+Copy code
+https://yourdomain.com
+You should see a valid HTTPS connection.
+
+⚠️ Important Notes
+Port 443 must be allowed in the EC2 security group
+
+Certbot uses port 80 during certificate generation
+
+Certificates expire every 90 days (automation recommended)
+#######################################################################################
+
 🔷 Required Ports & Security Groups
 
 Component	Port	Purpose
