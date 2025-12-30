@@ -24,20 +24,17 @@ HAProxy works as:
 
 
 ---
-
 ## 🔷 Architecture Overview (Logical View)
 
-Client (Browser / API Client)
-|
-| HTTP (80) / HTTPS (443)
-|
-HAProxy (EC2)
-|
-|---- App (Docker) EC2-1 : 8080
-|---- App (Docker) EC2-2 : 8080
-|---- App (Docker) EC2-3 : 8080
-|---- App (Docker) EC2-4 : 8080
-|---- App (Docker) EC2-5 : 8080
+Client (Browser / API Client)  
+↓ HTTP (80) / HTTPS (443)  
+HAProxy (EC2)  
+↓  
+App (Docker) EC2-1 : 8080  
+App (Docker) EC2-2 : 8080  
+App (Docker) EC2-3 : 8080  
+App (Docker) EC2-4 : 8080  
+App (Docker) EC2-5 : 8080  
 
 
 
