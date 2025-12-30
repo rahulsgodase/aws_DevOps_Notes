@@ -61,7 +61,7 @@ App (Docker) EC2-5 : 8080
 docker run -d \
   --name myapp \
   -p 8080:8080 \
-  myapp:latest
+  myapp:latest 
 
 Step 2️⃣ Choose HAProxy Node
 
@@ -135,9 +135,13 @@ openssl req -x509 -nodes -days 365 \
 -newkey rsa:2048 \
 -keyout app.key \
 -out app.crt
+
 Combine certificate and key:
+
 cat app.crt app.key > app.pem
+
 Option 2️⃣ Let’s Encrypt Certificate (Production)
+
 sudo apt install certbot -y
 sudo certbot certonly --standalone -d yourdomain.com
 
@@ -149,11 +153,13 @@ Move to:
 /etc/haproxy/certs/app.pem
 
 🔷 Required Ports & Security Groups
+
 Component	Port	Purpose
 HAProxy	80	HTTP
 HAProxy	443	HTTPS
 HAProxy	8404	Stats Dashboard
 App EC2	8080	Application
+
 🔷 Optional: HAProxy Stats Dashboard
 listen stats
     bind *:8404
@@ -173,6 +179,7 @@ Control	Full	Limited
 TLS	Manual	Managed
 Auto Scaling	Manual	Automatic
 Vendor Lock-in	No	Yes
+
 🔷 When to Use HAProxy
 
 Full infrastructure control
