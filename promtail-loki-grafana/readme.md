@@ -1,8 +1,11 @@
 # PROMTAIL-LOKI-GRAFANA #
 
 chech before install 
+
 docker ps 
+
 docker inspect contID  | grep LogPath
+
 sudo ls -l     (LogPath)/var/lib/docker/containers/a30013de90c17999f0fce486681c893733f9acb685d1c849d53b1aa49b4b8f0f/a30013de90c17999f0fce486681c893733f9acb685d1c849d53b1aa49b4b8f0f-json.log
 
 
