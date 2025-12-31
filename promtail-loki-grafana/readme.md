@@ -74,23 +74,24 @@ curl http://localhost:3100/ready
 
 # promtail install 
 
-cd /opt
+>cd /opt
 wget https://github.com/grafana/loki/releases/download/v2.9.4/promtail-linux-arm64.zip
 
-apt update
-apt install zip -y
+> apt update
+> apt install zip -y
 
-unzip promtail-linux-arm64.zip
+> unzip promtail-linux-arm64.zip
 
-chmod +x promtail-linux-arm64
-mv promtail-linux-arm64 /usr/local/bin/promtail
+> chmod +x promtail-linux-arm64
+> mv promtail-linux-arm64 /usr/local/bin/promtail
 
-promtail --version
+> promtail --version
 
-mkdir -p /etc/promtail
+> mkdir -p /etc/promtail
 
-vi /etc/promtail/promtail.yaml
+> vi /etc/promtail/promtail.yaml
 
+######### option-1 with cont ID #############
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -120,14 +121,49 @@ scrape_configs:
       - labels:
           container:
 
-promtail -config.file=/etc/promtail/promtail.yaml
+########### option-2 Cont-Name ##################
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: http://10.2.1.131:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker-containers
+
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          instance: nest-node-5
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+    pipeline_stages:
+      #Step 1: Parse Docker JSON logs
+      - json:
+          expressions:
+            log: log
+
+      #Step 2: Ask Docker for metadata (THIS IS THE MAGIC)
+      - docker: {}
+
+      #Step 3: Use container_name as a label
+      - labels:
+          container_name:
+          
+> promtail -config.file=/etc/promtail/promtail.yaml
 
 check
-curl http://localhost:9080/ready
+> curl http://localhost:9080/ready
 
 
-curl http://localhost:3100/metrics | grep promtail
-curl -G http://localhost:3100/loki/api/v1/labels
+> curl http://localhost:3100/metrics | grep promtail
+> curl -G http://localhost:3100/loki/api/v1/labels
 
 # Grafana install 
 
