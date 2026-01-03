@@ -91,7 +91,7 @@ wget https://github.com/grafana/loki/releases/download/v2.9.4/promtail-linux-arm
 
 > vi /etc/promtail/promtail.yaml
 
-######### option-1 with cont ID #############
+########### cont-Name, instance, con ID ##################
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -104,57 +104,32 @@ clients:
 
 scrape_configs:
   - job_name: docker
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: docker
-          instance: nest-node-5
-          __path__: /var/lib/docker/containers/*/*-json.log
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    relabel_configs:
+      # 1. Map the Log Path (CRITICAL)
+      - source_labels: [__meta_docker_container_id]
+        target_label: __path__
+        replacement: /var/lib/docker/containers/$1/$1-json.log
+
+      # 2. Container Name
+      - source_labels: [__meta_docker_container_name]
+        target_label: container
+        regex: '/(.*)'
+        replacement: '$1'
+
+      # 3. Container ID
+      - source_labels: [__meta_docker_container_id]
+        target_label: container_id
+
+      # 4. Static Instance Label
+      - target_label: instance
+        replacement: python-prod
 
     pipeline_stages:
-      - json:
-          expressions:
-            log: log
-      - regex:
-          expression: '/var/lib/docker/containers/(?P<container>[^/]+)/.*'
-      - labels:
-          container:
-
-########### option-2 Cont-Name ##################
-server:
-  http_listen_port: 9080
-  grpc_listen_port: 0
-
-positions:
-  filename: /var/lib/promtail/positions.yaml
-
-clients:
-  - url: http://10.2.1.131:3100/loki/api/v1/push
-
-scrape_configs:
-  - job_name: docker-containers
-
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: docker
-          instance: nest-node-5
-          __path__: /var/lib/docker/containers/*/*-json.log
-
-    pipeline_stages:
-      #Step 1: Parse Docker JSON logs
-      - json:
-          expressions:
-            log: log
-
-      #Step 2: Ask Docker for metadata (THIS IS THE MAGIC)
       - docker: {}
-
-      #Step 3: Use container_name as a label
-      - labels:
-          container_name:
           
 > promtail -config.file=/etc/promtail/promtail.yaml
 
